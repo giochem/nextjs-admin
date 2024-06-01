@@ -1,11 +1,5 @@
-import { metadata } from "@/app/(auth)/layout";
-import { Currency } from "lucide-react";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-
-export const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY!, {
-    typescript: true,
-});
+import { stripe } from "@/lib/stripe";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -20,6 +14,7 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
     try {
         const { cartItems, customer } = await req.json();
+
         if (!cartItems || !customer) {
             return new NextResponse("Not enough data to checkout", {
                 status: 400,
@@ -33,8 +28,8 @@ export async function POST(req: NextRequest) {
                 allowed_countries: ["US", "CA"],
             },
             shipping_options: [
-                { shipping_rate: "shr_1PI724HzFksJeQ7JbKioymqB" },
-                { shipping_rate: "shr_1PI7fiHzFksJeQ7JsHCMidcl" },
+                { shipping_rate: "shr_1MfufhDgraNiyvtnDGef2uwK" },
+                { shipping_rate: "shr_1OpHFHDgraNiyvtnOY4vDjuY" },
             ],
             line_items: cartItems.map((cartItem: any) => ({
                 price_data: {
@@ -57,9 +52,8 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json(session, { headers: corsHeaders });
-    } catch (error) {
-        console.log("[checkout_POST]", error);
-        return new NextResponse("Internet Server Error", { status: 500 });
+    } catch (err) {
+        console.log("[checkout_POST]", err);
+        return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
-export const dynamic = "force-dynamic";
